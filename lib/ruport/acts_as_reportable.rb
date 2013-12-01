@@ -300,11 +300,11 @@ module Ruport
       #
       def reportable_data(options = {})
         options = options.merge(self.class.aar_options) unless
-          has_report_options?(options)
+          has_acts_as_reportable_options?(options)
 
         # Grab and parse attributes for the current object
         # Includes :only, :except, and :methods processing
-        data_records = [get_attributes_with_options(options)]
+        data_records = [get_attributes_with_acts_as_reportable_options(options)]
 
         columns = []
 
@@ -326,7 +326,7 @@ module Ruport
         end
 
         if options[:include]
-          data_records, new_columns = add_includes(data_records, options[:include])
+          data_records, new_columns = add_acts_as_reportable_includes(data_records, options[:include])
           columns += new_columns unless new_columns.nil?
         end
 
@@ -337,7 +337,7 @@ module Ruport
 
       # Add data for all included associations
       #
-      def add_includes(data_records, includes)
+      def add_acts_as_reportable_includes(data_records, includes)
         include_has_options = includes.is_a?(Hash)
         associations = include_has_options ? includes.keys : [*includes]
         new_records = []
@@ -385,7 +385,7 @@ module Ruport
       # Check if the options hash has any report options
       # (:only, :except, :methods, or :include).
       #
-      def has_report_options?(options)
+      def has_acts_as_reportable_options?(options)
         options[:only] || options[:except] || options[:methods] ||
           options[:include]
       end
@@ -397,7 +397,7 @@ module Ruport
       # Use the :qualify_attribute_names option to append the association
       # name to the attribute name as association.attribute
       #
-      def get_attributes_with_options(options = {})
+      def get_attributes_with_acts_as_reportable_options(options = {})
         attrs = attributes
         attrs.delete_if {|key, value| [*options[:except]].collect{|o| o.to_s}.include?( key.to_s) } if options[:except]
         attrs.delete_if {|key, value| ![*options[:only]].collect{|o| o.to_s}.include?( key.to_s) } if options[:only]
